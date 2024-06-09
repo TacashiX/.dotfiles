@@ -18,6 +18,13 @@ git clone https://github.com/powerline/fonts.git --depth=1
 rm -rf fonts
 ```
 
+if tmux/nvim icons dont show up install nerd fonts, should probably just switch to one of these but i can't be bothered right now
+```
+sudo apt install wget fontconfig \
+&& wget -P ~/.local/share/fonts https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip \
+&& cd ~/.local/share/fonts && unzip Meslo.zip && rm *Windows* && rm Meslo.zip && fc-cache -fv
+```
+
 Make zsh default:
 ```
 chsh -s $(which zsh)
