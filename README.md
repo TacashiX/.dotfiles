@@ -18,11 +18,10 @@ git clone https://github.com/powerline/fonts.git --depth=1
 rm -rf fonts
 ```
 
-[Tmux plugin manager](https://github.com/tmux-plugins/tpm): 
+Make zsh default:
 ```
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+chsh -s $(which zsh)
 ```
-*`<Leader> + I` to install plugins*
 
 Install [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh):
 ```
@@ -33,5 +32,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 ``` 
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 ```
+
+[Tmux plugin manager](https://github.com/tmux-plugins/tpm): 
+```
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
+*`<Leader> + I` to install plugins*
 
 `stow` config directories you need. 
