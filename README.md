@@ -8,7 +8,7 @@ sudo apt update
 
 Install requirements: 
 ``` 
-sudo apt install golang i3 zsh curl tmux fonts-powerline picom rofi alacritty polybar stow git xclip make gcc ripgrep unzip neovim bash bc coreutils gawk jq playerctl -y
+sudo apt install golang i3 zsh curl tmux fonts-powerline picom rofi alacritty polybar stow git xclip make gcc ripgrep unzip neovim bash bc coreutils gawk jq playerctl autocutsel -y
 ```
 
 Install [fonts](https://github.com/powerline/fonts): 
