@@ -71,6 +71,10 @@ vim.opt.scrolloff = 10
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
+vim.keymap.set({ "n", "i", "v" }, "ö", "[")
+vim.keymap.set({ "n", "i", "v" }, "ä", "]")
+vim.keymap.set({ "n", "i", "v" }, "Ö", "{")
+vim.keymap.set({ "n", "i", "v" }, "Ä", "}")
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
