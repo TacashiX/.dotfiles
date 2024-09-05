@@ -835,6 +835,10 @@ require("lazy").setup({
 		config = function()
 			require("harpoon"):setup()
 		end,
+		settings = {
+			save_on_toggle = true,
+			sync_on_ui_close = true,
+		},
 		keys = {
 			{
 				"<leader>A",
