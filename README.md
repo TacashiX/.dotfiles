@@ -1,5 +1,10 @@
 ### Dotfiles
 
+#### Dependencies
+
+<details>
+<summary>Debian</summary>
+
 Add NVIM ppa:
 ```
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
@@ -30,11 +35,6 @@ sudo apt install wget fontconfig \
 && cd ~/.local/share/fonts && unzip Meslo.zip && rm *Windows* && rm Meslo.zip && fc-cache -fv
 ```
 
-Make zsh default:
-```
-chsh -s $(which zsh)
-```
-
 Install [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh):
 ```
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -43,6 +43,35 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 [Powerlevel10k](https://github.com/romkatv/powerlevel10k):
 ``` 
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+
+</details>
+
+<details>
+    <summary>Arch</summary>
+
+
+```
+pacman -Syu
+pacman -S base-devel git golang zsh curl tmux alacritty stow xclip make gcc ripgrep unzip neovim bc gawk jq playerctl nodejs gopls nerd-fonts
+```
+
+Install yay
+```
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
+```
+
+```
+yay -S autocutsel zsh-theme-powerlevel10k-git oh-my-zsh-git
+```
+
+</details>
+
+Make zsh default (relog after change):
+```
+chsh -s $(which zsh)
 ```
 
 [Tmux plugin manager](https://github.com/tmux-plugins/tpm): 

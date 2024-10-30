@@ -119,3 +119,6 @@ alias vim='nvim'
 function ffdir { ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -u http://$1/FUZZ -ic }
 function ffhost { ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -u http://$1 -H "Host: FUZZ.$1" -ic -fs ${2:-0} }
 
+if [ -f "/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme" ]; then
+  source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+fi
