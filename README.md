@@ -68,6 +68,8 @@ Might want to install oh-my-zsh manually
 yay -S autocutsel zsh-theme-powerlevel10k-git oh-my-zsh-git
 ```
 
+Uncomment multilib lines in '/etc/pacman.conf' then 'sudo pacman -Sy'
+
 </details>
 
 Make zsh default (relog after change):
