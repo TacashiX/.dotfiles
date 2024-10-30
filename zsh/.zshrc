@@ -17,7 +17,7 @@ export PATH=$PATH:$HOME/.local/share/bob/nvim-bin
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="powerlevel10k/powerlevel10k"
+
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -121,4 +121,8 @@ function ffhost { ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/ra
 
 if [ -f "/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme" ]; then
   source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+fi
+
+if [ -d "powerlevel10k/powerlevel10k" ]; then
+  ZSH_THEME="powerlevel10k/powerlevel10k"
 fi

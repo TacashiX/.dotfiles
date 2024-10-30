@@ -63,6 +63,7 @@ cd yay
 makepkg -si
 ```
 
+Might want to install oh-my-zsh manually
 ```
 yay -S autocutsel zsh-theme-powerlevel10k-git oh-my-zsh-git
 ```
