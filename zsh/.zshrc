@@ -123,6 +123,7 @@ if [ -f "/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme" ]; then
   source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
 fi
 
-if [ -d "powerlevel10k/powerlevel10k" ]; then
-  ZSH_THEME="powerlevel10k/powerlevel10k"
+if [ -d "$HOME/powerlevel10k" ]; then
+  # ZSH_THEME="powerlevel10k/powerlevel10k"
+  source $HOME/powerlevel10k/powerlevel10k.zsh-theme
 fi
