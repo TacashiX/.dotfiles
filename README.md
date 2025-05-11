@@ -53,7 +53,12 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$
 
 ```
 pacman -Syu
-pacman -S base-devel git golang zsh curl tmux alacritty stow xclip make gcc ripgrep unzip neovim bc gawk jq playerctl nodejs gopls nerd-fonts
+pacman -S base-devel git go zsh curl tmux alacritty stow xclip make gcc ripgrep unzip neovim bc gawk jq playerctl nodejs gopls nerd-fonts wl-clipboard
+```
+
+Hyprland machines: 
+```
+sudo pacman -S hyprland xdg-desktop-portal-hyprland wayland wlroots rofi-wayland waybar swaylock wlogout grim slurp xorg-xwayland ttf-font-awesome
 ```
 
 Install yay
