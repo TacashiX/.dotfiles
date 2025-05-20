@@ -1,0 +1,13 @@
+[Unit]
+Description=Backup user data to NAS
+After=network-online.target systemd-networkd-wait-online.service
+Wants=network-online.target systemd-networkd-wait-online.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /home/chris/.dotfiles/misc/backup_home/backup-home.sh
+Nice=19
+IOSchedulingClass=idle
+StandardOutput=journal
+StandardError=journal
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus"

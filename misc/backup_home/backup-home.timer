@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily backup to NAS
+Requires=backup-home.service
+
+[Timer]
+OnCalendar=02:00:00
+Persistent=true
+RandomizedDelaySec=300
+AccuracySec=1h
+
+[Install]
+WantedBy=timers.target

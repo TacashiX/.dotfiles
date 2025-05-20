@@ -1,0 +1,10 @@
+[Unit]
+Description=Run check for failed systemd services every hour
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=60min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
