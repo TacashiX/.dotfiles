@@ -58,7 +58,7 @@ pacman -S base-devel git go zsh curl tmux alacritty stow xclip make gcc ripgrep 
 
 Hyprland machines: 
 ```
-sudo pacman -S hyprland xdg-desktop-portal-hyprland wayland wlroots rofi-wayland waybar swaylock wlogout grim slurp xorg-xwayland ttf-font-awesome
+sudo pacman -S hyprland xdg-desktop-portal-hyprland wayland wlroots rofi-wayland waybar swaylock wlogout grim slurp xorg-xwayland ttf-font-awesome imagemagick hyprpaper swaync pipewire pipewire-alsa pipewire-pulse pavucontrol nemo blueman alsa-utils nm-connection-editor
 ```
 
 Install yay
@@ -70,7 +70,7 @@ makepkg -si
 
 Might want to install oh-my-zsh manually
 ```
-yay -S autocutsel zsh-theme-powerlevel10k-git oh-my-zsh-git
+yay -S autocutsel zsh-theme-powerlevel10k-git oh-my-zsh-git zsh-autocomplete-git
 ```
 
 Uncomment multilib lines in '/etc/pacman.conf' then 'sudo pacman -Sy'
@@ -88,4 +88,20 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
 *`<Leader> + I` to install plugins*
 
-`stow` config directories you need. 
+`stow` config directories you need.
+
+change gtk appearances with nwg-look
+yay -S tokyonight-gtk-theme-git 
+https://github.com/Fausto-Korpsvart/Tokyonight-GTK-Theme?tab=readme-ov-file
+
+alternatively just use JaKooLits hyprland dots https://github.com/JaKooLit/Hyprland-Dots
+install required packages  
+```
+bc cliphist curl grim gvfs gvfs-mtp hyprpolkitagent imagemagick inxi jq kitty kvantum libspng nano  network-manager-applet pamixer pavucontrol playerctl python-requests python-pyquery qt5ct qt6ct qt6-svg rofi-wayland slurp swappy swaync swww unzip # needed later wallust waybar wget wl-clipboard wlogout xdg-user-dirs xdg-utils yad brightnessctl btop cava loupe fastfetch gnome-system-monitor mousepad mpv mpv-mpris nvtop nwg-look nwg-displays pacman-contrib qalculate-gtk yt-dlp
+```
+clone repo and stow the dotfiles you want 
+
+```
+stow -t ~/.config/
+```
+wallpapers go into `~/Pictures/wallpapers`
