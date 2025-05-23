@@ -27,7 +27,7 @@ vim.opt.showmode = false
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
--- vim.opt.clipboard = 'unnamedplus'
+vim.opt.clipboard = "unnamedplus"
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -53,6 +53,7 @@ vim.opt.timeoutlen = 300
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
+vim.opt.cmdheight = 0
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
@@ -749,6 +750,9 @@ require("lazy").setup({
 			-- -- You can configure highlights by doing something like:
 			vim.cmd.hi("Comment gui=none")
 		end,
+		-- config = function()
+		-- 	require("tokyonight").setup({ transparent = true })
+		-- end,
 	},
 
 	-- Highlight todo, notes, etc in comments
@@ -780,18 +784,42 @@ require("lazy").setup({
 			-- Simple and easy statusline.
 			--  You could remove this setup call if you don't like it,
 			--  and try some other statusline plugin
-			local statusline = require("mini.statusline")
+			-- require("mini.icons").setup()
+			-- local statusline = require("mini.statusline")
 			-- set use_icons to true if you have a Nerd Font
-			statusline.setup({ use_icons = vim.g.have_nerd_font })
 
 			-- You can configure sections in the statusline by overriding their
 			-- default behavior. For example, here we set the section for
 			-- cursor location to LINE:COLUMN
 			---@diagnostic disable-next-line: duplicate-set-field
-			statusline.section_location = function()
-				return "%2l:%-2v"
+			-- statusline.section_location = function()
+			-- 	return "%2l:%-2v"
+			-- end
+			local my_status_line = function()
+				local mode, mode_hl = statusline.section_mode({ trunc_width = 120 })
+				local git = statusline.section_git({ trunc_width = 40 })
+				local diff = statusline.section_diff({ trunc_width = 75 })
+				local diagnostics = statusline.section_diagnostics({ trunc_width = 75 })
+				local lsp = statusline.section_lsp({ trunc_width = 75 })
+				local filename = statusline.section_filename({ trunc_width = 140 })
+				local fileinfo = statusline.section_fileinfo({ trunc_width = 120 })
+				local location = statusline.section_location({ trunc_width = 75 })
+				local search = statusline.section_searchcount({ trunc_width = 75 })
+
+				return statusline.combine_groups({
+					{ hl = mode_hl, strings = { mode } },
+					-- { hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
+					{ hl = "MiniStatuslineDevinfo", strings = { git } },
+					"%<", -- Mark general truncate point
+					{ hl = "MiniStatuslineFilename", strings = { filename } },
+					"%=", -- End left alignment
+					{ hl = "MiniStatuslineFileinfo", strings = { fileinfo } },
+					-- { hl = mode_hl, strings = { search, location } },
+					{ hl = mode_hl, strings = { search } },
+				})
 			end
 
+			-- statusline.setup({ content = { active = my_status_line } })
 			-- ... and there is more!
 			--  Check out: https://github.com/echasnovski/mini.nvim
 		end,
@@ -826,6 +854,104 @@ require("lazy").setup({
 			--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
 			--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 			--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+		end,
+	},
+	{
+		"nvim-lualine/lualine.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		config = function()
+			-- 	local iceberg = require("lualine.themes.iceberg_dark")
+			-- 	-- custom_iceberg.normal.c.bg = "#414868"
+			-- 	--
+			-- 	local custom_iceberg = vim.tbl_deep_extend("force", iceberg, {
+			-- 		normal = {
+			-- 			y = { bg = "#1A1B26", fg = "#414868" },
+			-- 			z = { bg = "#ffffff", fg = "#414868" },
+			-- 		},
+			-- 		insert = {
+			-- 			y = { bg = "#1A1B26", fg = "#414868" },
+			-- 		},
+			-- 		visual = {
+			-- 			y = { bg = "#1A1B26", fg = "#414868" },
+			-- 		},
+			-- 		replace = {
+			-- 			y = { bg = "#1A1B26", fg = "#414868" },
+			-- 		},
+			-- 		command = {
+			-- 			y = { bg = "#1A1B26", fg = "#414868" },
+			-- 		},
+			-- 		inactive = {
+			-- 			y = { bg = "#1A1B26", fg = "#414868" },
+			-- 		},
+			-- 	})
+			require("lualine").setup({
+				options = {
+					icons_enabled = true,
+					-- theme = custom_iceberg,
+					theme = "iceberg_dark",
+					component_separators = { left = "", right = "" },
+					section_separators = { left = "", right = "" },
+					disabled_filetypes = {
+						statusline = {},
+						winbar = {},
+					},
+					ignore_focus = {},
+					always_divide_middle = true,
+					always_show_tabline = true,
+					globalstatus = true,
+					refresh = {
+						statusline = 100,
+						tabline = 100,
+						winbar = 100,
+					},
+				},
+				sections = {
+					lualine_a = { "mode" },
+					lualine_b = {
+						{ "filename", icon = "" },
+					},
+					lualine_c = {
+						{
+							function()
+								local dir = vim.fn.expand("%:p:h:t")
+								return dir == "" and "No directory" or dir
+							end,
+							icon = "󰉖",
+						},
+					},
+					lualine_x = {},
+					lualine_y = {
+						{
+							function()
+								local line = vim.fn.line(".")
+								local total_lines = vim.fn.line("$")
+								local col = vim.fn.charcol(".")
+								return string.format("%d/%d : %d", line, total_lines, col)
+							end,
+							icon = "󰉢", -- Optional: Add an icon for the location
+						},
+						{
+							"encoding",
+							fmt = string.upper,
+						},
+						{
+							"filetype",
+							colored = false,
+						},
+						{
+							function()
+								return "󱚞"
+							end,
+							padding = { left = 1, right = 1 },
+						},
+					},
+					lualine_z = { "searchcount" },
+				},
+				tabline = {},
+				winbar = {},
+				inactive_winbar = {},
+				extensions = {},
+			})
 		end,
 	},
 	{

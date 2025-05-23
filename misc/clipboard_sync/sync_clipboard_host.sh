@@ -27,13 +27,17 @@ while true; do
 done
 ) &
 
+#small delay while vm is booting. doesnt really make a difference
+sleep 3
+
 LAST_CLIP=""
 while true; do
     CURRENT_CLIP="$($CLIPBOARD_OUT)"
-    if [ "$CURRENT_CLIP" != "$LAST_CLIP" ]; then
+    if [ -n "$CURRENT_CLIP" ] && [ "$CURRENT_CLIP" != "$LAST_CLIP" ]; then
         # printf "$CURRENT_CLIP" | ssh -i "$SSH_KEY" "$VM_USER@$VM_IP" 'WAYLAND_DISPLAY=wayland-1 wl-copy'
-        printf "$CURRENT_CLIP" | ncat --send-only $VM_IP $VM_PORT
-        LAST_CLIP="$CURRENT_CLIP"
+        if printf "$CURRENT_CLIP" | ncat --send-only $VM_IP $VM_PORT 2>/dev/null; then
+            LAST_CLIP="$CURRENT_CLIP"
+        fi
     fi
     sleep 0.5
 done

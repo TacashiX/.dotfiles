@@ -10,8 +10,24 @@
 #  Aliases 
 # Add aliases here
 alias vim='nvim'
+alias ls='lsd'
+alias l='ls -l'
+alias la='ls -a'
+alias lla='ls -la'
+alias lt='ls --tree'
 
 #  This is your file 
 # Add your configurations here
 export EDITOR=nvim
 # export EDITOR=code
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+
+HISTSIZE=1000
+SAVEHIST=1000
+
+precmd(){
+  fc -A
+}

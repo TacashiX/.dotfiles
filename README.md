@@ -97,7 +97,7 @@ https://github.com/Fausto-Korpsvart/Tokyonight-GTK-Theme?tab=readme-ov-file
 alternatively just use JaKooLits hyprland dots https://github.com/JaKooLit/Hyprland-Dots
 install required packages  
 ```
-bc cliphist curl grim gvfs gvfs-mtp hyprpolkitagent imagemagick inxi jq kitty kvantum libspng nano  network-manager-applet pamixer pavucontrol playerctl python-requests python-pyquery qt5ct qt6ct qt6-svg rofi-wayland slurp swappy swaync swww unzip # needed later wallust waybar wget wl-clipboard wlogout xdg-user-dirs xdg-utils yad brightnessctl btop cava loupe fastfetch gnome-system-monitor mousepad mpv mpv-mpris nvtop nwg-look nwg-displays pacman-contrib qalculate-gtk yt-dlp
+bc cliphist curl grim gvfs gvfs-mtp hyprpolkitagent imagemagick inxi jq kitty kvantum libspng nano  network-manager-applet pamixer pavucontrol playerctl python-requests python-pyquery qt5ct qt6ct qt6-svg rofi-wayland slurp swappy swaync swww unzip # needed later wallust waybar wget wl-clipboard wlogout xdg-user-dirs xdg-utils yad brightnessctl btop cava loupe fastfetch gnome-system-monitor mousepad mpv mpv-mpris nvtop nwg-look nwg-displays pacman-contrib qalculate-gtk yt-dlp lsd
 ```
 clone repo and stow the dotfiles you want 
 
