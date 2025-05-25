@@ -5,9 +5,8 @@ name:
 #   a.out: 
 extension:
   md: 
-  readme: 
 filetype:
-#   dir: 📂
+  dir: 
 #   file: 📄
 #   pipe: 📩
 #   socket: 󰆨

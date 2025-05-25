@@ -2,6 +2,7 @@
 
 # Installation: 
 # move .service and .timer files to ~/.config/systemd/user/
+# systemctl --user daemon-reload
 # systemctl --user enable --now service-notify.timer
 
 # Check for failed systemd services

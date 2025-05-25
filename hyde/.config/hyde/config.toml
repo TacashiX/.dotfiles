@@ -45,12 +45,11 @@ scale = 8
 
 [rofi.launch]
 # rofilaunch.sh configuration
-# style = "10"
-scale = 5
+# scale = 1
 
 [rofi.cliphist]
 # cliphist.sh configuration
-scale = 8
+# scale = 20
 
 [rofi.wallpaper]
 #swwwallselect.sh configuration
@@ -66,7 +65,7 @@ scale = 8
 scale = 6
 
 [wlogout]
-style = 2
+style = 1
 
 [battery.notify]
 # batterynotify.sh configuration
@@ -125,7 +124,7 @@ skip_template = [
 ]    # skips the template when using wallbash. Requires full path to the template
 
 [waybar]
-font = "JetBrainsMono Nerd Font"
+font = "Liga SFMono Nerd Font"
 scale=30                                # total scaling
 # output = ["", ""]                     # Default monitor output for waybar
 
@@ -191,5 +190,5 @@ commands = ["btop", "htop", "top"] # Fallback command options
 
 [notification]
 # notification script can use this configuration
-font = "mononoki Nerd Font"         # Font for notifications
+font = "Liga SFMono Nerd Font"         # Font for notifications
 font_size = 8                     # Font size for notifications

@@ -58,7 +58,7 @@ pacman -S base-devel git go zsh curl tmux alacritty stow xclip make gcc ripgrep 
 
 Hyprland machines: 
 ```
-sudo pacman -S hyprland xdg-desktop-portal-hyprland wayland wlroots rofi-wayland waybar swaylock wlogout grim slurp xorg-xwayland ttf-font-awesome imagemagick hyprpaper swaync pipewire pipewire-alsa pipewire-pulse pavucontrol nemo blueman alsa-utils nm-connection-editor
+sudo pacman -S hyprland xdg-desktop-portal-hyprland wayland wlroots rofi-wayland waybar swaylock wlogout grim slurp xorg-xwayland ttf-font-awesome imagemagick hyprpaper swaync pipewire pipewire-alsa pipewire-pulse pavucontrol nemo blueman alsa-utils nm-connection-editor hyprshot
 ```
 
 Install yay

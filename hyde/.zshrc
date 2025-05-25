@@ -7,6 +7,7 @@
 #  Plugins 
 # oh-my-zsh plugins are loaded  in ~/.hyde.zshrc file, see the file for more information
 
+unset -f command_not_found_handler
 #  Aliases 
 # Add aliases here
 alias vim='nvim'
@@ -14,20 +15,22 @@ alias ls='lsd'
 alias l='ls -l'
 alias la='ls -a'
 alias lla='ls -la'
+alias ll='ls -la'
 alias lt='ls --tree'
+alias un='$aurhelper -Rns'
 
 #  This is your file 
 # Add your configurations here
 export EDITOR=nvim
 # export EDITOR=code
-setopt INC_APPEND_HISTORY
-setopt SHARE_HISTORY
-setopt HIST_EXPIRE_DUPS_FIRST
-setopt HIST_IGNORE_DUPS
+# setopt INC_APPEND_HISTORY
+# setopt SHARE_HISTORY
+# setopt HIST_EXPIRE_DUPS_FIRST
+# setopt HIST_IGNORE_DUPS
 
-HISTSIZE=1000
-SAVEHIST=1000
+# HISTSIZE=1000
+# SAVEHIST=1000
 
-precmd(){
-  fc -A
-}
+# precmd(){
+#   fc -A
+# }
