@@ -79,25 +79,98 @@ export PATH=$PATH:$HOME/.local/share/bob/nvim-bin
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-256color)
+plugins=(git zsh-256color zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 # User configuration
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
-# Ensure history is saved per pane
-setopt INC_APPEND_HISTORY
-setopt SHARE_HISTORY
-setopt HIST_EXPIRE_DUPS_FIRST
-setopt HIST_IGNORE_DUPS
+# History configuration // explicit to not nuke history
+LESSHISTFILE=${LESSHISTFILE:-/tmp/less-hist}
+HISTFILE=${HISTFILE:-$HOME/.zsh_history}
+HISTSIZE=10000
+SAVEHIST=10000
+setopt EXTENDED_HISTORY       # Write the history file in the ':start:elapsed;command' format
+setopt INC_APPEND_HISTORY     # Write to the history file immediately, not when the shell exits
+setopt SHARE_HISTORY          # Share history between all sessions
+setopt HIST_EXPIRE_DUPS_FIRST # Expire a duplicate event first when trimming history
+setopt HIST_IGNORE_DUPS       # Do not record an event that was just recorded again
+setopt HIST_IGNORE_ALL_DUPS   # Delete an old recorded event if a new event is a duplicate
 
-HISTSIZE=1000
-SAVEHIST=1000
+export ZSH_AUTOSUGGEST_STRATEGY HISTFILE
 
-precmd(){
-  fc -A
+# Initiate fzf
+if command -v fzf &>/dev/null; then
+    eval "$(fzf --zsh)"
+fi
+
+# Fuzzy find stuff
+_fuzzy_change_directory() {
+    local initial_query="$1"
+    local selected_dir
+    local fzf_options=('--preview=ls -p {}' '--preview-window=right:60%')
+    fzf_options+=(--height "80%" --layout=reverse --preview-window right:60% --cycle)
+    local max_depth=7
+
+    if [[ -n "$initial_query" ]]; then
+        fzf_options+=("--query=$initial_query")
+    fi
+
+    #type -d
+    selected_dir=$(find . -maxdepth $max_depth \( -name .git -o -name node_modules -o -name .venv -o -name target -o -name .cache \) -prune -o -type d -print 2>/dev/null | fzf "${fzf_options[@]}")
+
+    if [[ -n "$selected_dir" && -d "$selected_dir" ]]; then
+        cd "$selected_dir" || return 1
+    else
+        return 1
+    fi
 }
+
+_fuzzy_edit_search_file_content() {
+    # [f]uzzy [e]dit  [s]earch [f]ile [c]ontent
+    local selected_file
+    selected_file=$(grep -irl "${1:-}" ./ | fzf --height "80%" --layout=reverse --preview-window right:60% --cycle --preview 'cat {}' --preview-window right:60%)
+
+    if [[ -n "$selected_file" ]]; then
+        if command -v "$EDITOR" &>/dev/null; then
+            "$EDITOR" "$selected_file"
+        else
+            echo "EDITOR is not specified. using vim.  (you can export EDITOR in ~/.zshrc)"
+            vim "$selected_file"
+        fi
+
+    else
+        echo "No file selected or search returned no results."
+    fi
+}
+
+_fuzzy_edit_search_file() {
+    local initial_query="$1"
+    local selected_file
+    local fzf_options=()
+    fzf_options+=(--height "80%" --layout=reverse --preview-window right:60% --cycle)
+    local max_depth=5
+
+    if [[ -n "$initial_query" ]]; then
+        fzf_options+=("--query=$initial_query")
+    fi
+
+    # -type f: only find files
+    selected_file=$(find . -maxdepth $max_depth -type f 2>/dev/null | fzf "${fzf_options[@]}")
+
+    if [[ -n "$selected_file" && -f "$selected_file" ]]; then
+        if command -v "$EDITOR" &>/dev/null; then
+            "$EDITOR" "$selected_file"
+        else
+            echo "EDITOR is not specified. using vim.  (you can export EDITOR in ~/.zshrc)"
+            vim "$selected_file"
+        fi
+    else
+        return 1
+    fi
+}
+
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
@@ -126,12 +199,18 @@ alias l='ls -l'
 alias la='ls -a'
 alias lla='ls -la'
 alias lt='ls --tree'
+
+alias ffec='_fuzzy_edit_search_file_content' \
+            ffcd='_fuzzy_change_directory' \
+            ffe='_fuzzy_edit_search_file' \
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 # alias ll='ls -l'
 # alias la='ls -la'
 # alias l='ls -CF'
 
+export EDITOR='nvim'
 alias vim='nvim'
 function ffdir { ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -u http://$1/FUZZ -ic }
 function ffhost { ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -u http://$1 -H "Host: FUZZ.$1" -ic -fs ${2:-0} }

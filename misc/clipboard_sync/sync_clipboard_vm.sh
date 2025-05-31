@@ -1,4 +1,5 @@
 #!/bin/bash
+
 HOST_IP="192.168.0.145"
 PORT=9888
 HOST_PORT=9887
@@ -18,11 +19,6 @@ trap 'kill $(jobs -p) 2>/dev/null; exit' EXIT INT TERM
       elif [[ $line == IMAGE:* ]]; then
         # Handle image
         ncat -l -p $PORT | base64 -d | $HOST_CLIPBOARD --type image/png
-      elif [[ $line == FILE:* ]]; then
-        # Handle file
-        FILENAME="${line#FILE:}"
-        ncat -l -p $PORT | base64 -d > "/tmp/$FILENAME"
-        echo "file:///tmp/$FILENAME" | $HOST_CLIPBOARD
       fi
     done
   done
@@ -47,16 +43,6 @@ while true; do
       if printf "IMAGE:" | ncat --send-only $HOST_IP $HOST_PORT 2>/dev/null &&
          $CLIPBOARD_OUT --no-newline | base64 | ncat --send-only $HOST_IP $HOST_PORT 2>/dev/null; then
         LAST_CLIP_HASH=$CURRENT_CLIP_HASH
-      fi
-    elif [[ $MIME_TYPE == text/uri-list ]]; then
-      # Handle file
-      FILE_PATH=$($CLIPBOARD_OUT --no-newline | sed 's|^file://||')
-      if [ -f "$FILE_PATH" ]; then
-        FILENAME=$(basename "$FILE_PATH")
-        if printf "FILE:%s" "$FILENAME" | ncat --send-only $HOST_IP $HOST_PORT 2>/dev/null &&
-           cat "$FILE_PATH" | base64 | ncat --send-only $HOST_IP $HOST_PORT 2>/dev/null; then
-          LAST_CLIP_HASH=$CURRENT_CLIP_HASH
-        fi
       fi
     fi
   fi
