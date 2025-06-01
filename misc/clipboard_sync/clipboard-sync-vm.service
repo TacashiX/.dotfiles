@@ -1,0 +1,13 @@
+[Unit]
+Description=Clipboard Sync VM Client
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.dotfiles/misc/clipboard_sync/clipboard_sync.sh vm
+Restart=always
+Environment=WAYLAND_DISPLAY=%E/wayland-0
+Environment=XDG_RUNTIME_DIR=%E/XDG_RUNTIME_DIR
+
+[Install]
+WantedBy=default.target
+
