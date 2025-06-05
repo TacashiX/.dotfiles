@@ -27,8 +27,8 @@ systemctl --user daemon-reload
 #### Set up QEMU hook
 
 ```bash
-mkdir -p /etc/libvirt/hooks/qemu.d
-sudo ln -s ~/.dotfiles/misc/clipboard_sync/libvirt_qemu_hook.sh /etc/libvirt/hooks/qemu.d/clipboard-sync-hook.sh
+sudo mkdir -p /etc/libvirt/hooks/qemu.d
+sudo ln -sf ~/.dotfiles/misc/clipboard_sync/libvirt_qemu_hook.sh /etc/libvirt/hooks/qemu.d/clipboard-sync-hook.sh
 ```
 
 ### VM Setup

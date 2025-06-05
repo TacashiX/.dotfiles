@@ -5,6 +5,9 @@ After=graphical-session.target
 [Service]
 ExecStart=%h/.dotfiles/misc/clipboard_sync/clipboard_sync.sh vm
 Restart=always
+RestartSec=5
+StartLimitIntervalSec=30
+StartLimitBurst=10
 Environment=WAYLAND_DISPLAY=%E/wayland-0
 Environment=XDG_RUNTIME_DIR=%E/XDG_RUNTIME_DIR
 

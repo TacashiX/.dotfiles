@@ -21,8 +21,9 @@ RSYNC_OPTS="-avh --delete --progress"  # rsync options
 # store vault password in kde wallet or whatever password manager that workds with secret-tool
 # secret-tool store --label="CryFS Vault Name" cryfs vault_YourVault
 VAULT_ENC_DIR="/home/$USER/.local/share/plasma-vault/jail.enc"
-VAULT_MOUNT="/tmp/vault_backup_$$"
-
+VAULT_MOUNT="/home/$USER/vault_backup_$$"
+TEMP_ARCHIVE_DIR="/home/$USER/tmp"
+BACKUP_ARCHIVE="$TEMP_ARCHIVE_DIR/vault_backup_$$.tar.gpg"
 
 EXCLUDE_PATTERNS=(
     "*.cache*"
@@ -38,7 +39,7 @@ EXCLUDE_PATTERNS=(
 
 # Unencrypted vault paths to exclude 
 VAULT_EXCLUDE_PATHS=(
-    "games"  # Example: exclude ~/Vaults/misc/games/
+    "home/games" 
     "home/downloads"
 )
 
@@ -46,6 +47,32 @@ VAULT_EXCLUDE_PATHS=(
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
+
+# Cleanup function for unmounting and removing temp files
+cleanup() {
+    log "Starting cleanup"
+    # Unmount vault if mounted
+    if mountpoint -q "$VAULT_MOUNT" 2>/dev/null; then
+        log "Unmounting vault from $VAULT_MOUNT"
+        fusermount -u "$VAULT_MOUNT" >/dev/null 2>&1 || log "Warning: Failed to unmount vault"
+    fi
+    # Remove vault mount point
+    [ -d "$VAULT_MOUNT" ] && rm -rf "$VAULT_MOUNT" && log "Removed vault mount point $VAULT_MOUNT"
+    
+    # Unmount NAS if mounted
+    if mountpoint -q "$DEST_DIR" 2>/dev/null; then
+        log "Unmounting NAS from $DEST_DIR"
+        sudo umount "$DEST_DIR" >/dev/null 2>&1 || log "Warning: Failed to unmount NAS"
+    fi
+    
+    # Remove temporary archive if it exists
+    [ -f "$BACKUP_ARCHIVE" ] && rm -f "$BACKUP_ARCHIVE" && log "Removed temporary archive $BACKUP_ARCHIVE"
+    
+    # Remove temporary archive directory if empty
+    [ -d "$TEMP_ARCHIVE_DIR" ] && rmdir "$TEMP_ARCHIVE_DIR" 2>/dev/null && log "Removed temporary archive directory $TEMP_ARCHIVE_DIR"
+}
+
+trap cleanup EXIT INT TERM
 
 # Check if credentials file exists
 if [ ! -f "$CRED_FILE" ]; then
@@ -107,7 +134,6 @@ fi
 
 
 # Back up selected encrypted vault files
-BACKUP_ARCHIVE="/tmp/vault_backup_$$.tar.gpg"
 VAULT_NAME=$(basename "$VAULT_ENC_DIR" .enc)
 if [ -d "$VAULT_ENC_DIR" ]; then
     # Create temporary mount point
@@ -115,10 +141,9 @@ if [ -d "$VAULT_ENC_DIR" ]; then
     chmod 700 "$VAULT_MOUNT"
 
     # Retrieve vault password
-    VAULT_PASS=$(secret-tool lookup gocryptfs vault_"$VAULT_NAME")
+    VAULT_PASS=$(secret-tool lookup gocryptfs vault_"$VAULT_NAME" 2>/dev/null || secret-tool lookup plasma-vault "$VAULT_NAME")
     if [ -z "$VAULT_PASS" ]; then
         log "Error: Failed to retrieve vault password for $VAULT_NAME"
-        rm -rf "$VAULT_MOUNT"
         exit 1
     fi
 
@@ -127,7 +152,6 @@ if [ -d "$VAULT_ENC_DIR" ]; then
     echo "$VAULT_PASS" | gocryptfs -passfile /dev/stdin "$VAULT_ENC_DIR" "$VAULT_MOUNT" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         log "Error: Failed to mount vault"
-        rm -rf "$VAULT_MOUNT"
         exit 1
     fi
 
@@ -142,21 +166,21 @@ if [ -d "$VAULT_ENC_DIR" ]; then
         fi
     done
 
+    # Create temporary archive directory
+    sudo mkdir -p "$TEMP_ARCHIVE_DIR"
+    sudo chown $USER:$USER "$TEMP_ARCHIVE_DIR"
+
     # Create encrypted tar archive
     log "Creating encrypted archive at $BACKUP_ARCHIVE"
-    eval "tar -C '$VAULT_MOUNT' --warning=no-file-changed --ignore-failed-read -cf - $TAR_EXCLUDES ." | gpg --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase "$VAULT_PASS" -o "$BACKUP_ARCHIVE" --symmetric 2>&1 #2>/dev/null
-    if [ $? -ne 0 ]; then
+    tar -C "$VAULT_MOUNT" -cf - $TAR_EXCLUDES . 2>/tmp/tar_error.log | gpg --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase "$VAULT_PASS" -o "$BACKUP_ARCHIVE" --symmetric 2>/tmp/gpg_error.log
+    if [ ${PIPESTATUS[0]} -ne 0 ] || [ ${PIPESTATUS[1]} -ne 0 ]; then
         log "Error: Failed to create encrypted archive"
-        umount "$VAULT_MOUNT" >/dev/null 2>&1
-        rm -rf "$VAULT_MOUNT"
-        rm -f "$BACKUP_ARCHIVE"
+        log "tar errors: $(cat /tmp/tar_error.log)"
+        log "gpg errors: $(cat /tmp/gpg_error.log)"
+        rm -f /tmp/tar_error.log /tmp/gpg_error.log
         exit 1
     fi
-
-    # Unmount vault
-    log "Unmounting vault from $VAULT_MOUNT"
-    umount "$VAULT_MOUNT" >/dev/null 2>&1
-    rm -rf "$VAULT_MOUNT"
+    rm -f /tmp/tar_error.log /tmp/gpg_error.log
 
     # Create vault-backup destination directory
     VAULT_DEST="$DEST_DIR/vault-backup"
@@ -170,23 +194,10 @@ if [ -d "$VAULT_ENC_DIR" ]; then
         log "Encrypted archive synced successfully"
     else
         log "Error: Failed to sync encrypted archive"
-        rm -f "$BACKUP_ARCHIVE"
         exit 1
     fi
-
-    # Clean up temp files
-    rm -f "$BACKUP_ARCHIVE"
 else
     log "Warning: Encrypted vault directory $VAULT_ENC_DIR not found"
-fi
-
-# Unmount the NAS
-if mountpoint -q "$DEST_DIR"; then
-    log "Unmounting NAS from $DEST_DIR"
-    sudo umount "$DEST_DIR"
-    if [ $? -ne 0 ]; then
-        log "Warning: Failed to unmount NAS"
-    fi
 fi
 
 exit 0

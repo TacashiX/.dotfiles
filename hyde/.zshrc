@@ -34,3 +34,26 @@ export EDITOR=nvim
 # precmd(){
 #   fc -A
 # }
+
+# restrict up and down arrows to in memory history if running in tmux 
+if [[ -n "$TMUX" ]]; then
+  # Disable shared history
+  unsetopt SHARE_HISTORY
+  unsetopt INC_APPEND_HISTORY
+
+  # Load global history file so autosuggestions still work
+  fc -R
+
+  # Arrow keys: only search local session history
+  autoload -Uz up-line-or-search down-line-or-search
+  bindkey "${terminfo[kcuu1]}" up-line-or-search
+  bindkey "${terminfo[kcud1]}" down-line-or-search
+
+  # Periodically write new session history back to global file
+  function sync_local_to_global_history() {
+    fc -W
+  }
+
+  # Save local history after each prompt
+  precmd_functions+=sync_local_to_global_history
+fi
