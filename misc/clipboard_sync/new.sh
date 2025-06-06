@@ -112,7 +112,16 @@ case "$MODE" in
 
     # Receive clipboard updates from host
     while true; do
-      socat -u TCP:$HOST_IP:$PORT_BROADCAST,connect-timeout=$TIMEOUT SYSTEM:'wl-copy' || {
+      socat -u TCP:$HOST_IP:$PORT_BROADCAST,connect-timeout=$TIMEOUT - | {
+        TMP_BUF=$(mktemp)
+        cat > "$TMP_BUF"
+        
+        if [[ -s "$TMP_BUF" ]]; then
+          wl-copy < "$TMP_BUF"
+        fi
+
+        rm -f "$TMP_BUF"
+      } || {
         log "Failed to connect to host broadcast, retrying..."
         sleep 1
         continue
