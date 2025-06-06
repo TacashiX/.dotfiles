@@ -64,7 +64,7 @@ case "$MODE" in
     mkfifo "$FIFO" || { log "Failed to create FIFO"; exit 1; }
 
     # Broadcast clipboard changes to all connected VMs
-    socat -u OPEN:"$FIFO",rdonly TCP4-LISTEN:$PORT_BROADCAST,reuseaddr,fork,verify-peer,pass=$SECRET &
+    socat -u OPEN:"$FIFO",rdonly TCP4-LISTEN:$PORT_BROADCAST,reuseaddr,fork &
     PIDS+=($!)
     log "Started broadcast listener on port $PORT_BROADCAST"
 
@@ -90,7 +90,7 @@ case "$MODE" in
     PIDS+=($!)
 
     # Accept clipboard input from VMs and apply to host
-    socat -u TCP4-LISTEN:$PORT_SEND,reuseaddr,fork,verify-peer,pass=$SECRET SYSTEM:'wl-copy' &
+    socat -u TCP4-LISTEN:$PORT_SEND,reuseaddr,fork SYSTEM:'wl-copy' &
     PIDS+=($!)
     log "Started receiving listener on port $PORT_SEND"
 
@@ -111,7 +111,7 @@ case "$MODE" in
         NEW_HASH=$(sha256sum "$TEMP_FILE" | cut -d ' ' -f1)
         if [[ "$NEW_HASH" != "$LAST_HASH" ]]; then
           log "VM clipboard changed (mime: $MIME_TYPE), sending to $HOST_IP:$PORT_SEND"
-          socat -u OPEN:"$TEMP_FILE",rdonly TCP:$HOST_IP:$PORT_SEND,connect-timeout=$TIMEOUT,pass=$SECRET || {
+          socat -u OPEN:"$TEMP_FILE",rdonly TCP:$HOST_IP:$PORT_SEND,connect-timeout=$TIMEOUT || {
             log "Failed to send to host, retrying..."
             sleep 1
             continue
@@ -125,7 +125,7 @@ case "$MODE" in
 
     # Receive clipboard updates from host
     while true; do
-      socat -u TCP:$HOST_IP:$PORT_BROADCAST,connect-timeout=$TIMEOUT,pass=$SECRET SYSTEM:'wl-copy' || {
+      socat -u TCP:$HOST_IP:$PORT_BROADCAST,connect-timeout=$TIMEOUT SYSTEM:'wl-copy' || {
         log "Failed to connect to host broadcast, retrying..."
         sleep 1
         continue
