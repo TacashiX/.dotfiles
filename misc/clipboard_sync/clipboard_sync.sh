@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 MODE=${1:-host}
 HOST_IP="192.168.0.145"

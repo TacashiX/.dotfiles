@@ -3,8 +3,9 @@ Description=Clipboard Sync Host Service
 After=graphical-session.target
 
 [Service]
+Type=simple
 ExecStart=%h/.dotfiles/misc/clipboard_sync/clipboard_sync.sh host
-Restart=always
+Restart=on-failure
 Environment=WAYLAND_DISPLAY=%E/wayland-0
 Environment=XDG_RUNTIME_DIR=%E/XDG_RUNTIME_DIR
 
