@@ -6,7 +6,6 @@ MODE=${1:-host}
 HOST_IP=${HOST_IP:-"192.168.0.145"}  # Can be overridden by env var
 PORT_SEND=${PORT_SEND:-4567}         # Host listens for VM clipboard changes
 PORT_BROADCAST=${PORT_BROADCAST:-4568}  # Host broadcasts to VMs
-SECRET=${SECRET:-"my-secret-key"}    # Shared secret for basic authentication
 LOCK_FILE="/tmp/clipboard-sync.lock"
 TIMEOUT=5  # Timeout for socat connections
 
@@ -44,17 +43,31 @@ flock -n 200 || { log "Another instance is running"; exit 1; }
 
 # Determine mime type of clipboard content
 get_mime_type() {
-  wl-paste --list-types | head -n1
+  wl-paste --list-types 2>/dev/null | head -n1 || echo "text/plain"
 }
 
 # Handle clipboard data based on mime type
 handle_clipboard() {
   local temp_file="$1"
   local mime_type=$(get_mime_type)
+  if [[ -z "$mime_type" ]]; then
+    log "No mime type detected, assuming text/plain"
+    mime_type="text/plain"
+  fi
   if [[ "$mime_type" =~ ^text/ ]]; then
-    wl-paste --no-newline > "$temp_file" 2>/dev/null
+    if wl-paste --no-newline > "$temp_file" 2>/dev/null; then
+      log "Successfully read text clipboard (mime: $mime_type)"
+    else
+      log "Failed to read text clipboard, assuming empty"
+      : > "$temp_file"  # Create empty file to avoid skipping
+    fi
   else
-    wl-paste > "$temp_file" 2>/dev/null
+    if wl-paste > "$temp_file" 2>/dev/null; then
+      log "Successfully read non-text clipboard (mime: $mime_type)"
+    else
+      log "Failed to read non-text clipboard, assuming empty"
+      : > "$temp_file"
+    fi
   fi
   echo "$mime_type"
 }
@@ -101,14 +114,22 @@ case "$MODE" in
     # Send clipboard changes from VM to host
     (
       LAST_HASH=""
+      # Initialize clipboard to ensure it's accessible
+      wl-copy "" 2>/dev/null || log "Failed to initialize clipboard"
       while true; do
         TEMP_FILE="$TMP_DIR/clip.dat"
         MIME_TYPE=$(handle_clipboard "$TEMP_FILE")
-        if [[ ! -s "$TEMP_FILE" ]]; then
+        if [[ ! -s "$TEMP_FILE" && "$MIME_TYPE" != "text/plain" ]]; then
+          log "Empty clipboard (non-text), skipping"
           sleep 0.3
           continue
         fi
-        NEW_HASH=$(sha256sum "$TEMP_FILE" | cut -d ' ' -f1)
+        NEW_HASH=$(sha256sum "$TEMP_FILE" 2>/dev/null | cut -d ' ' -f1 || echo "")
+        if [[ -z "$NEW_HASH" ]]; then
+          log "Failed to compute hash, skipping"
+          sleep 0.3
+          continue
+        fi
         if [[ "$NEW_HASH" != "$LAST_HASH" ]]; then
           log "VM clipboard changed (mime: $MIME_TYPE), sending to $HOST_IP:$PORT_SEND"
           socat -u OPEN:"$TEMP_FILE",rdonly TCP:$HOST_IP:$PORT_SEND,connect-timeout=$TIMEOUT || {
