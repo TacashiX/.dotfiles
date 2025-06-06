@@ -121,11 +121,6 @@ case "$MODE" in
 
         rm -f "$TMP_BUF"
       } 
-      status=$?
-      if [[ $status -ne 0 ]]; then
-        log "socat exited with code $status — retrying after delay..."
-        sleep 2
-      fi
     done &
     PIDS+=($!)
     log "Started receiving from $HOST_IP:$PORT_BROADCAST"
