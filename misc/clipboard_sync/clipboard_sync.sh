@@ -110,22 +110,22 @@ case "$MODE" in
     PIDS+=($!)
 
     # Receive clipboard updates from host
-     
     while true; do
-      TMP_BUF=$(mktemp /tmp/clipbuf.XXXXXX)
-
-      if socat -u TCP:$HOST_IP:$PORT_BROADCAST,connect-timeout=$TIMEOUT - > "$TMP_BUF"; then
+      socat -u TCP:$HOST_IP:$PORT_BROADCAST,connect-timeout=$TIMEOUT - | {
+        TMP_BUF=$(mktemp)
+        cat > "$TMP_BUF"
+        
         if [[ -s "$TMP_BUF" ]]; then
           wl-copy < "$TMP_BUF"
         fi
-      else
-        log "Failed to connect to host broadcast, retrying..."
-        rm -f "$TMP_BUF"
-        sleep 1
-        continue
-      fi
 
-      rm -f "$TMP_BUF"
+        rm -f "$TMP_BUF"
+      } 
+      status=$?
+      if [[ $status -ne 0 ]]; then
+        log "socat exited with code $status — retrying after delay..."
+        sleep 2
+      fi
     done &
     PIDS+=($!)
     log "Started receiving from $HOST_IP:$PORT_BROADCAST"
