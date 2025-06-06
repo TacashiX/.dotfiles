@@ -1,5 +1,7 @@
 # Clipboard Sync Setup
 
+*DO NOT USE!!* only included in case i want to look at it again. currently just running the script without service setup. start in hyperland setup or through qemu hook. do not use the hook script either. All files except for the main script are deprecated 
+
 Scripts to sync clipboards between Wayland based Host and VMs over TCP since guest agents keep failing me for some reason.
 
 ## Requirements
