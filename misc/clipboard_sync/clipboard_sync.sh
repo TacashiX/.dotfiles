@@ -103,6 +103,7 @@ case "$MODE" in
   vm)
     # Send clipboard changes from VM to host
     (
+      wl-copy ""
       LAST_HASH=""
       while true; do
 
