@@ -17,6 +17,7 @@ command -v socat >/dev/null 2>&1 || { echo "socat required"; exit 1; }
 # Temporary directory and FIFO
 TMP_DIR=$(mktemp -d)
 FIFO="$TMP_DIR/fifo"
+FLAG_FILE="$TMP_DIR/clipboard_changed"
 mkdir -p "$TMP_DIR"
 
 PIDS=()
@@ -33,8 +34,16 @@ cleanup() {
   done
   rm -rf "$TMP_DIR"
   rm -f "$LOCK_FILE"
+  rm -f "$FLAG_FILE" 
+  exit 0
 }
 trap cleanup EXIT INT TERM
+
+# Start wl-paste --watch to signal clipboard changes
+(
+    wl-paste --watch touch "$FLAG_FILE"
+) &
+PIDS+=($!)
 
 # Prevent race conditions with lock file
 exec 200>"$LOCK_FILE"
@@ -58,6 +67,14 @@ case "$MODE" in
     (
       LAST_HASH=""
       while true; do
+
+        #wait for clipboard change signal
+        if [[ ! -f "$FLAG_FILE" ]]; then
+            sleep 0.3
+            continue
+        fi
+        rm -f "$FLAG_FILE" 
+
         TEMP_FILE="$TMP_DIR/clip.dat"
         handle_clipboard "$TEMP_FILE"
         if [[ ! -s "$TEMP_FILE" ]]; then
@@ -88,6 +105,14 @@ case "$MODE" in
     (
       LAST_HASH=""
       while true; do
+
+        #wait for clipboard change signal
+        if [[ ! -f "$FLAG_FILE" ]]; then
+            sleep 0.3
+            continue
+        fi
+        rm -f "$FLAG_FILE" 
+
         TEMP_FILE="$TMP_DIR/clip.dat"
         handle_clipboard "$TEMP_FILE"
         if [[ ! -s "$TEMP_FILE" ]]; then
